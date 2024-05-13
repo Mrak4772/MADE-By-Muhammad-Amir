@@ -65,7 +65,7 @@ TreeExtractor -> TreeTextFileInterpreter;
     // The structural information of the table is used
     // to generate the correct table.
     block TreeLoader oftype SQLiteLoader {
-        table: "Trees";
-        file: "./Trees.sqlite";
+        table: "trees";
+        file: "./trees.sqlite";
     }
 }
