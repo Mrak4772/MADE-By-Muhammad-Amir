@@ -1,21 +1,20 @@
 pipeline TemperaturesPipeline {
     DataFetcher
-    -> ArchiveHandler
-    -> CSVFileSelector
-    -> TextProcessor
-    -> CSVParser
-    -> UnnecessaryColumnsRemover
-    -> HeadersRenamer
-    -> DataFrameInterpreter
-    -> TempToFahrenheitConverter
-    -> BatteryTempToFahrenheitConverter
-    -> DataStorer;
+        -> ZipFileInterpreter
+        -> CSVFileSelector
+        -> TextFileInterpreter
+        -> CSVInterpreter
+        -> AktivCutoffSelector
+        -> UnnecessaryColumnDeleter
+       -> DataFrameInterpreter
+        -> FahrenheitTransformer
+        -> DataStorer;
 
     block DataFetcher oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block ArchiveHandler oftype ArchiveInterpreter {
+    block ZipFileInterpreter oftype ArchiveInterpreter {
         archiveType: "zip";
     }
 
@@ -23,45 +22,58 @@ pipeline TemperaturesPipeline {
         path: "/data.csv";
     }
 
-    block TextProcessor oftype TextFileInterpreter {}
+    block TextFileInterpreter oftype TextFileInterpreter {}
 
-    block CSVParser oftype CSVInterpreter {
+    block CSVInterpreter oftype CSVInterpreter {
         delimiter: ";";
     }
 
-    block UnnecessaryColumnsRemover oftype ColumnDeleter {
+    block AktivCutoffSelector oftype CellRangeSelector {
+        select: range A2:J*;
+    }
+
+    block UnnecessaryColumnDeleter oftype ColumnDeleter {
         delete: [column F, column G, column H, column I];
     }
 
-    block HeadersRenamer oftype CellWriter {
-        at: range A1:F1;
-        write: ['id', 'producer', 'model', 'month', 'temp_c', 'battery_temperature'];
-    }
-
     block DataFrameInterpreter oftype TableInterpreter {
-        header: true;
+        header: false;
         columns: [
-            "id" oftype PositiveInteger,
+            "id" oftype PositiveInt,
             "producer" oftype text,
+            "model" oftype text,
             "month" oftype Month,
-            "temp_c" oftype decimal,
-            "battery_temperature" oftype decimal
+            "temperature" oftype Celsius,
+            "battery_temperature" oftype Celsius
         ];
     }
 
-    valuetype PositiveInteger oftype integer {
-        constraints: [ PositiveIntegerConstraint ];
+    valuetype PositiveInt oftype integer {
+        constraints: [ PositiveIntConstraint ];
     }
 
-    constraint PositiveIntegerConstraint on integer:
-        value > 0;
+    constraint PositiveIntConstraint on integer:
+        value >= 0;
 
     valuetype Month oftype integer {
         constraints: [ MonthConstraint ];
     }
 
     constraint MonthConstraint on integer:
-        value >= 1 and value <= 12;
+        value >= 0 and value <= 12;
+
+    valuetype Celsius oftype decimal {
+        constraints: [ CelsiusConstraint ];
+    }
+
+    constraint CelsiusConstraint on decimal:
+         value >= -273.15; // the theoretical minimum of degree celsius
+
+    block FahrenheitTransformer oftype TableTransformer {
+        inputColumns: ['temperature'];
+        outputColumn: 'temperature';
+        use: CelsiusToFahrenheit;
+    }
 
     transform CelsiusToFahrenheit {
         from Celsius oftype decimal;
@@ -69,21 +81,9 @@ pipeline TemperaturesPipeline {
         Fahrenheit: (Celsius * 9/5) + 32;
     }
 
-    block TempToFahrenheitConverter oftype TableTransformer {
-        inputColumns: ['temp_c'];
-        outputColumn: 'temperature';
-        use: CelsiusToFahrenheit;
-    }
-
-    block BatteryTempToFahrenheitConverter oftype TableTransformer {
-        inputColumns: ['battery_temperature'];
-        outputColumn: 'battery_temp_fahrenheit';
-        use: CelsiusToFahrenheit;
-    }
-
     block DataStorer oftype SQLiteLoader {
         table: "temperatures";
-        file: "./temperatures.sqlite";
+        file: "temperatures.sqlite";
         dropTable: true;
     }
 }
