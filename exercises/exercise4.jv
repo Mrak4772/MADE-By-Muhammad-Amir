@@ -6,6 +6,7 @@ pipeline TemperaturesPipeline {
         -> CSVInterpreter
         -> AktivCutoffSelector
         -> UnnecessaryColumnDeleter
+       -> HeadersRenamer
        -> DataFrameInterpreter
         -> FahrenheitTransformer
         -> BatterytempTransformer
@@ -30,15 +31,19 @@ pipeline TemperaturesPipeline {
     }
 
     block AktivCutoffSelector oftype CellRangeSelector {
-        select: range A2:J*;
+        select: range A1:J*;
     }
 
     block UnnecessaryColumnDeleter oftype ColumnDeleter {
         delete: [column F, column G, column H, column I];
     }
 
+    block HeadersRenamer oftype CellWriter {
+        at: range A1:F1;
+        write: ['id', 'producer', 'model', 'month', 'temperature', 'battery_temperature'];
+    }
     block DataFrameInterpreter oftype TableInterpreter {
-        header: false;
+        header: true;
         columns: [
             "id" oftype PositiveInt,
             "producer" oftype text,
