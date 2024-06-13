@@ -31,7 +31,7 @@ pipeline TemperaturesPipeline {
     }
 
     block AktivCutoffSelector oftype CellRangeSelector {
-        select: range A1:J*;
+        select: range A1:K*;
     }
 
     block UnnecessaryColumnDeleter oftype ColumnDeleter {
@@ -43,7 +43,7 @@ pipeline TemperaturesPipeline {
         write: ['id', 'producer', 'model', 'month', 'temperature', 'battery_temperature'];
     }
     block DataFrameInterpreter oftype TableInterpreter {
-        header: true;
+        header: false;
         columns: [
             "id" oftype PositiveInt,
             "producer" oftype text,
