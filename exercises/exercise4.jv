@@ -1,4 +1,4 @@
-pipeline WeatherDataPipeline {
+pipeline TemperaturesPipeline {
     DataFetcher
     -> ArchiveHandler
     -> CSVFileSelector
@@ -70,8 +70,8 @@ pipeline WeatherDataPipeline {
     }
 
     block TempToFahrenheitConverter oftype TableTransformer {
-        inputColumns: ['temp_c'];
-        outputColumn: 'temp_fahrenheit';
+        inputColumns: ['temperatures'];
+        outputColumn: 'temperature';
         use: CelsiusToFahrenheit;
     }
 
@@ -82,7 +82,7 @@ pipeline WeatherDataPipeline {
     }
 
     block DataStorer oftype SQLiteLoader {
-        table: "temperature_readings";
+        table: "temperatures";
         file: "./temperatures.sqlite";
         dropTable: true;
     }
