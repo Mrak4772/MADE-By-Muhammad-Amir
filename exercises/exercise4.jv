@@ -8,6 +8,7 @@ pipeline TemperaturesPipeline {
         -> UnnecessaryColumnDeleter
        -> DataFrameInterpreter
         -> FahrenheitTransformer
+        -> BatterytempTransformer
         -> DataStorer;
 
     block DataFetcher oftype HttpExtractor {
@@ -79,6 +80,12 @@ pipeline TemperaturesPipeline {
         from Celsius oftype decimal;
         to Fahrenheit oftype decimal;
         Fahrenheit: (Celsius * 9/5) + 32;
+    }
+
+    block BatterytempTransformer oftype TableTransformer {
+        inputColumns: ['battery_temperature'];
+        outputColumn: 'battery_temp_fahrenheit';
+        use: CelsiusToFahrenheit;
     }
 
     block DataStorer oftype SQLiteLoader {
