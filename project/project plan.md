@@ -1,15 +1,24 @@
 Project Plan
-Title
-Data Scientists Salaries Worldwide - Annual Survey Reddit
+TitleUnderstanding and Predicting Climate Change Metrics
 
 Main Question
-Dive into the various compensation possibilities - and use it to prepare to negotiate when the time is right!
+How can we understand and predict the impact of climate
+change metrics, specifically CO2 levels and temperatures, over time?
 
 Description
-Every year there is an annual thread on Salaries in Data Science on Reddit. Data scientists from all over the world self-report their own salaries, bonuses and other compensation. Some of the salaries are insanely high!
+This involves analyzing historical climate data to identify trends and using machine learning models
+to predict future changes in CO2 concentrations and temperature averages.
 
 Datasources
-Datasource1: Kaggle data scientist salary on reddeit survey
-Metadata URL: /kaggle/input/data-scientists-salaries-worldwide-annual-survey/data_scientists_salaries_from_reddit.csv
-Data Type: CSV
-This dataset contains information on over 14 columns and 555 rows of data scientist salaries including all the relevent variables currently my data source is only one later on i will add one more data source 
+The data sources for this project were chosen based on their comprehensive coverage of
+climate-related metrics and their credibility. The datasets used include:
+- Global Land Temperatures by City: Provides historical temperature data for various cities around
+the world.
+- Temperatures by Country: Contains historical temperature data aggregated by country.
+- Temperatures by Major City: Focuses on temperature data for major global cities.
+- Temperatures by State: Includes temperature records for states within countries.
+- Global Temperatures: A global dataset for temperature records.
+These datasets are sourced from Kaggle's climate change datasets and contain various climate
+metrics such as average temperature, CO2 levels, and timestamps. Each dataset was chosen for its
+relevance and the granularity of the data it provides, which is essential for detailed analysis and
+prediction.
